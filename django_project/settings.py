@@ -7,11 +7,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / 'db.env')
 
 
-SECRET_KEY = 'django-insecure-+2*ia+#y&5-h$sd4w96jop6%%gxpsrao)-vce&rppuylcv4e)8'
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-+2*ia+#y&5-h$sd4w96jop6%%gxpsrao)-vce&rppuylcv4e)8',
+)
 
-DEBUG = True
+# Vercel define VERCEL=1 en su runtime. En local queda True para ver el detalle
+# de los errores; en produccion se apaga solo, o a mano con DJANGO_DEBUG.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False' if os.environ.get('VERCEL') else 'True') == 'True'
 
-ALLOWED_HOSTS = []
+# El dominio cambia en cada preview: '.vercel.app' cubre produccion y previews.
+ALLOWED_HOSTS = [
+    host for host in os.environ.get(
+        'DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app'
+    ).split(',') if host
+]
+
+# Los formularios viajan por https: sin esto Django rechaza cada POST.
+CSRF_TRUSTED_ORIGINS = [
+    origen for origen in os.environ.get(
+        'DJANGO_CSRF_TRUSTED_ORIGINS', 'https://*.vercel.app'
+    ).split(',') if origen
+]
 
 
 INSTALLED_APPS = [
@@ -125,6 +142,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static'] #Django buscará aquí los archivos del proyecto.
+
+# Vercel ejecuta collectstatic solo si STATIC_ROOT existe: junta ahí lo de las
+# apps y lo de STATICFILES_DIRS, y luego lo sirve desde su CDN.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 #MongoDB usa ObjectId como primary key en vez de autoincrement
 DEFAULT_AUTO_FIELD = 'django_mongodb_backend.fields.ObjectIdAutoField'
