@@ -1,7 +1,7 @@
 # Restaurante Abaroa - Backend 
-Segunda etapa del proyecto académico iniciado en la Unidad 1.
+Tercera etapa del proyecto académico iniciado en la Unidad 1.
 
-Esta etapa incorpora persistencia real en base de datos: landing, reserva de mesas, atención de mesas por parte de los meseros y panel de administración para gestionar los objetos de la carta, usuarios y mesas.
+Esta etapa cierra el sistema: operaciones CRUD completas (crear, consultar, modificar y eliminar) desde las interfaces propias del sitio, validaciones en los formularios, autenticación con manejo de sesiones y medidas básicas de seguridad, todo sobre la persistencia en base de datos incorporada en la etapa anterior.
 
 # Base de datos
 El proyecto usa MongoDB Atlas en la nube mediante `django-mongodb-backend` en lugar de MySQL por defecto de Django.
