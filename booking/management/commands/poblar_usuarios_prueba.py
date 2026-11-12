@@ -24,6 +24,10 @@ CUENTAS_DE_PRUEBA = (
     {"username": "MrCopycat", "first_name": "Mr Copycat", "numero_mesa": 2},
 )
 
+# Cuenta con la que el docente revisa el panel propio y el django-admin.
+CUENTA_ADMIN = "ADMIN"
+CLAVE_ADMIN_POR_DEFECTO = "1234"
+
 CLAVE_POR_DEFECTO = "prueba1234"
 
 PRIMERA_HORA = 0
@@ -47,6 +51,11 @@ class Command(BaseCommand):
             help="Clave con la que quedan las dos cuentas de prueba.",
         )
         parser.add_argument(
+            "--clave-admin",
+            default=CLAVE_ADMIN_POR_DEFECTO,
+            help="Clave con la que queda la cuenta ADMIN.",
+        )
+        parser.add_argument(
             "--limpiar",
             action="store_true",
             help="Borra las reservas existentes de estas cuentas antes de poblarlas.",
@@ -60,6 +69,8 @@ class Command(BaseCommand):
             raise CommandError("--dias debe ser al menos 1.")
 
         hoy = timezone.localdate()
+
+        self.crear_admin(opciones["clave_admin"])
 
         for cuenta in CUENTAS_DE_PRUEBA:
             mesa = Mesa.objects.filter(numero=cuenta["numero_mesa"]).first()
@@ -84,6 +95,27 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f"Listo: {dias} dias desde {hoy}.")
         )
+
+    def crear_admin(self, clave):
+        """Crea o actualiza ADMIN: rol admin, staff y superusuario.
+
+        El rol se asigna despues del create porque create_user() rechaza
+        'rol' a proposito: es la misma via controlada que usa User.crear_admin,
+        pero pasando por save() para poder fijar tambien is_staff.
+        """
+        usuario, creado = User.objects.get_or_create(
+            username=CUENTA_ADMIN,
+            defaults={"first_name": "ADMIN"},
+        )
+        usuario.rol = User.Rol.ADMIN
+        usuario.is_staff = True
+        usuario.is_superuser = True
+        usuario.set_password(clave)
+        usuario.save()
+
+        estado = "creada" if creado else "actualizada"
+        self.stdout.write(f"{usuario.username} {estado} (rol {usuario.rol}).")
+        return usuario
 
     def crear_cuenta(self, cuenta, clave):
         """Crea o actualiza la cuenta, siempre como cliente."""
