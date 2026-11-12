@@ -40,11 +40,15 @@ El proyecto se entrega con cuentas que existen solo para la revisión: no hay co
 
 | Usuario | Clave | Rol | Para qué sirve |
 |---|---|---|---|
-| `admin` | `1234` | `admin` | Entrar al panel propio (`/admin/`) y al django-admin con todos los permisos |
-| `mreveryday` | `prueba1234` | `cliente` | Ocupa la mesa 1 en todos los bloques horarios |
-| `mrcopycat` | `prueba1234` | `cliente` | Lo mismo en la mesa 2, para comparar mesas tomadas |
+| `admin@abaroa.cl` | `12345678` | `admin` | Entrar al panel propio (`/admin/`) y al django-admin con todos los permisos |
+| `ana@abaroa.cl` | `12345678` | `mesero` | Atender mesas y abrir cuentas desde `/mesero/` |
+| `matias@abaroa.cl` | `12345678` | `mesero` | Lo mismo, para probar dos sesiones en paralelo |
+| `francisco@abaroa.cl` | `12345678` | `mesero` | Lo mismo |
+| `usuario@gmail.com` | `12345678` | `cliente` | Reservar mesas desde el sitio público |
+| `mreveryday` | `12345678` | `cliente` | Ocupa la mesa 1 en todos los bloques horarios |
+| `mrcopycat` | `12345678` | `cliente` | Lo mismo en la mesa 2, para comparar mesas tomadas |
 
-`admin` se crea con `rol='admin'`, `is_staff` e `is_superuser`, así que sirve para las dos administraciones sin pasos extra.
+El login del sitio autentica por correo, así que el nombre de usuario es el correo completo. `admin@abaroa.cl` se crea con `rol='admin'`, `is_staff` e `is_superuser`, así que sirve para las dos administraciones sin pasos extra.
 
 # Poblar las reservas de prueba
 
@@ -54,13 +58,13 @@ Las cuentas de prueba no viajan en el repositorio: se reconstruyen contra la bas
 python manage.py poblar_usuarios_prueba
 ```
 
-El comando crea `admin` y las dos cuentas de cliente, y llena la mesa 1 y la mesa 2 con un bloque por hora (00:00 a 23:00, incluidos los bloques fuera del horario de atención) desde el día de hoy hasta 30 días adelante. Como las fechas se calculan al ejecutarlo, las reservas siempre quedan vigentes.
+El comando crea todas las cuentas de la tabla y llena la mesa 1 y la mesa 2 con un bloque por hora (00:00 a 23:00, incluidos los bloques fuera del horario de atención) desde el día de hoy hasta 30 días adelante. Como las fechas se calculan al ejecutarlo, las reservas siempre quedan vigentes.
 
 Opciones:
 
 - `--dias N` cambia el alcance (por defecto 30).
 - `--limpiar` borra las reservas anteriores de esas cuentas antes de repoblarlas.
-- `--clave` y `--clave-admin` cambian las claves de los usuarios de prueba.
+- `--clave` cambia la clave de todos los usuarios de prueba.
 
 ```
 python manage.py poblar_usuarios_prueba --dias 30 --limpiar

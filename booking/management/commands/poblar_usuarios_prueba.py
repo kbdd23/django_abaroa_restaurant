@@ -1,17 +1,20 @@
-"""Puebla las cuentas de prueba que ocupan mesas enteras.
+"""Puebla las cuentas de prueba del sistema y las mesas de demostracion.
 
-MrEveryday y MrCopycat no tienen logica de negocio ni consumos: existen solo
-para llenar el salon y que el flujo de reservas y el panel del mesero se vean
-con mesas tomadas de punta a punta.
+Crea el equipo que se usa en la presentacion: un administrador, tres meseros y
+un cliente, todos con el correo como nombre de usuario porque el login del
+sitio autentica contra el campo de correo.
 
-Cada cuenta toma, hora por hora, todos los bloques del dia (00:00-23:00,
-incluidos los que caen fuera del horario de atencion) en su propia mesa,
-desde hoy hasta `--dias` dias adelante. Se crean con `objects.create` y no con
-la vista de reserva a proposito: el formulario rechazaria los bloques fuera
-de horario, y aqui lo que se busca es justamente ocupar todo.
+Ademas crea MrEveryday y MrCopycat, que no tienen logica de negocio ni
+consumos: existen solo para llenar el salon y que el flujo de reservas y el
+panel del mesero se vean con mesas tomadas de punta a punta. Cada uno toma,
+hora por hora, todos los bloques del dia (00:00-23:00, incluidos los que caen
+fuera del horario de atencion) en su propia mesa, desde hoy hasta `--dias` dias
+adelante. Esas reservas se crean con `objects.create` y no con la vista de
+reserva a proposito: el formulario rechazaria los bloques fuera de horario, y
+aqui lo que se busca es justamente ocupar todo.
 """
 
-from datetime import datetime, time, timedelta
+from datetime import time, timedelta
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
@@ -19,16 +22,27 @@ from django.utils import timezone
 from booking.models import Mesa, Reserva
 from panel.models import User
 
+ADMINISTRADORES = (
+    {"username": "admin@abaroa.cl", "first_name": "Admin"},
+)
+
+MESEROS = (
+    {"username": "ana@abaroa.cl", "first_name": "Ana"},
+    {"username": "matias@abaroa.cl", "first_name": "Matias"},
+    {"username": "francisco@abaroa.cl", "first_name": "Francisco"},
+)
+
+CLIENTES = (
+    {"username": "usuario@gmail.com", "first_name": "Usuario"},
+)
+
+# Estas dos, ademas de existir, llenan su mesa con reservas.
 CUENTAS_DE_PRUEBA = (
     {"username": "mreveryday", "first_name": "Mr Everyday", "numero_mesa": 1},
     {"username": "mrcopycat", "first_name": "Mr Copycat", "numero_mesa": 2},
 )
 
-# Cuenta con la que el docente revisa el panel propio y el django-admin.
-CUENTA_ADMIN = "admin"
-CLAVE_ADMIN_POR_DEFECTO = "1234"
-
-CLAVE_POR_DEFECTO = "prueba1234"
+CLAVE_POR_DEFECTO = "12345678"
 
 PRIMERA_HORA = 0
 ULTIMA_HORA = 23  # el ultimo bloque del dia termina a las 23:00
@@ -36,7 +50,7 @@ DIAS_POR_DEFECTO = 30
 
 
 class Command(BaseCommand):
-    help = "Crea MrEveryday y MrCopycat y los llena de reservas hora por hora."
+    help = "Crea las cuentas de prueba y llena las mesas 1 y 2 hora por hora."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -48,12 +62,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--clave",
             default=CLAVE_POR_DEFECTO,
-            help="Clave con la que quedan las dos cuentas de prueba.",
-        )
-        parser.add_argument(
-            "--clave-admin",
-            default=CLAVE_ADMIN_POR_DEFECTO,
-            help="Clave con la que queda la cuenta ADMIN.",
+            help="Clave con la que quedan todas las cuentas.",
         )
         parser.add_argument(
             "--limpiar",
@@ -70,7 +79,14 @@ class Command(BaseCommand):
 
         hoy = timezone.localdate()
 
-        self.crear_admin(opciones["clave_admin"])
+        for datos in ADMINISTRADORES:
+            self.crear_persona(datos, User.Rol.ADMIN, clave)
+
+        for datos in MESEROS:
+            self.crear_persona(datos, User.Rol.MESERO, clave)
+
+        for datos in CLIENTES:
+            self.crear_persona(datos, User.Rol.CLIENTE, clave)
 
         for cuenta in CUENTAS_DE_PRUEBA:
             mesa = Mesa.objects.filter(numero=cuenta["numero_mesa"]).first()
@@ -79,7 +95,7 @@ class Command(BaseCommand):
                     f"No existe la mesa {cuenta['numero_mesa']}: revisa que las migraciones de booking corrieron."
                 )
 
-            usuario = self.crear_cuenta(cuenta, clave)
+            usuario = self.crear_persona(cuenta, User.Rol.CLIENTE, clave)
 
             if opciones["limpiar"]:
                 borradas = Reserva.objects.filter(cliente=usuario).delete()
@@ -96,35 +112,23 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"Listo: {dias} dias desde {hoy}.")
         )
 
-    def crear_admin(self, clave):
-        """Crea o actualiza ADMIN: rol admin, staff y superusuario.
+    def crear_persona(self, datos, rol, clave):
+        """Crea o actualiza la cuenta con ese rol.
 
-        El rol se asigna despues del create porque create_user() rechaza
-        'rol' a proposito: es la misma via controlada que usa User.crear_admin,
-        pero pasando por save() para poder fijar tambien is_staff.
+        El rol se asigna despues del create porque create_user() lo rechaza a
+        proposito (evita escalar privilegios desde el frontend). Solo el
+        administrador lleva is_staff e is_superuser: son las banderas del
+        django-admin nativo.
         """
         usuario, creado = User.objects.get_or_create(
-            username=CUENTA_ADMIN,
-            defaults={"first_name": "ADMIN"},
+            username=datos["username"],
+            defaults={"email": datos["username"], "first_name": datos["first_name"]},
         )
-        usuario.rol = User.Rol.ADMIN
-        usuario.is_staff = True
-        usuario.is_superuser = True
-        usuario.set_password(clave)
-        usuario.save()
-
-        estado = "creada" if creado else "actualizada"
-        self.stdout.write(f"{usuario.username} {estado} (rol {usuario.rol}).")
-        return usuario
-
-    def crear_cuenta(self, cuenta, clave):
-        """Crea o actualiza la cuenta, siempre como cliente."""
-        usuario, creado = User.objects.get_or_create(
-            username=cuenta["username"],
-            defaults={"first_name": cuenta["first_name"]},
-        )
-        usuario.first_name = cuenta["first_name"]
-        usuario.rol = User.Rol.CLIENTE
+        usuario.email = datos["username"]
+        usuario.first_name = datos["first_name"]
+        usuario.rol = rol
+        usuario.is_staff = rol == User.Rol.ADMIN
+        usuario.is_superuser = rol == User.Rol.ADMIN
         usuario.set_password(clave)
         usuario.save()
 
