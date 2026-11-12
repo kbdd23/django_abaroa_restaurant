@@ -38,8 +38,8 @@ CLIENTES = (
 
 # Estas dos, ademas de existir, llenan su mesa con reservas.
 CUENTAS_DE_PRUEBA = (
-    {"username": "mreveryday", "first_name": "Mr Everyday", "numero_mesa": 1},
-    {"username": "mrcopycat", "first_name": "Mr Copycat", "numero_mesa": 2},
+    {"username": "mreveryday@abaroa.cl", "first_name": "Mr Everyday", "numero_mesa": 1},
+    {"username": "mrcopycat@abaroa.cl", "first_name": "Mr Copycat", "numero_mesa": 2},
 )
 
 CLAVE_POR_DEFECTO = "12345678"

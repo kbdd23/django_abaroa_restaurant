@@ -45,8 +45,8 @@ El proyecto se entrega con cuentas que existen solo para la revisión: no hay co
 | `matias@abaroa.cl` | `12345678` | `mesero` | Lo mismo, para probar dos sesiones en paralelo |
 | `francisco@abaroa.cl` | `12345678` | `mesero` | Lo mismo |
 | `usuario@gmail.com` | `12345678` | `cliente` | Reservar mesas desde el sitio público |
-| `mreveryday` | `12345678` | `cliente` | Ocupa la mesa 1 en todos los bloques horarios |
-| `mrcopycat` | `12345678` | `cliente` | Lo mismo en la mesa 2, para comparar mesas tomadas |
+| `mreveryday@abaroa.cl` | `12345678` | `cliente` | Ocupa la mesa 1 en todos los bloques horarios |
+| `mrcopycat@abaroa.cl` | `12345678` | `cliente` | Lo mismo en la mesa 2, para comparar mesas tomadas |
 
 El login del sitio autentica por correo, así que el nombre de usuario es el correo completo. `admin@abaroa.cl` se crea con `rol='admin'`, `is_staff` e `is_superuser`, así que sirve para las dos administraciones sin pasos extra.
 
