@@ -50,7 +50,7 @@ El proyecto se entrega con cuentas que existen solo para la revisión: no hay co
 
 El login del sitio autentica por correo, así que el nombre de usuario es el correo completo. `admin@abaroa.cl` se crea con `rol='admin'`, `is_staff` e `is_superuser`, así que sirve para las dos administraciones sin pasos extra.
 
-# Poblar las reservas de prueba
+# Datos de prueba para la demostración de reserva
 
 Las cuentas de prueba no viajan en el repositorio: se reconstruyen contra la base de datos que estés usando. Con las migraciones ya aplicadas:
 
