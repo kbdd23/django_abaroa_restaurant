@@ -40,11 +40,11 @@ El proyecto se entrega con cuentas que existen solo para la revisión: no hay co
 
 | Usuario | Clave | Rol | Para qué sirve |
 |---|---|---|---|
-| `ADMIN` | `1234` | `admin` | Entrar al panel propio (`/admin/`) y al django-admin con todos los permisos |
-| `MrEveryday` | `prueba1234` | `cliente` | Ocupa la mesa 1 en todos los bloques horarios |
-| `MrCopycat` | `prueba1234` | `cliente` | Lo mismo en la mesa 2, para comparar mesas tomadas |
+| `admin` | `1234` | `admin` | Entrar al panel propio (`/admin/`) y al django-admin con todos los permisos |
+| `mreveryday` | `prueba1234` | `cliente` | Ocupa la mesa 1 en todos los bloques horarios |
+| `mrcopycat` | `prueba1234` | `cliente` | Lo mismo en la mesa 2, para comparar mesas tomadas |
 
-`ADMIN` se crea con `rol='admin'`, `is_staff` e `is_superuser`, así que sirve para las dos administraciones sin pasos extra.
+`admin` se crea con `rol='admin'`, `is_staff` e `is_superuser`, así que sirve para las dos administraciones sin pasos extra.
 
 # Poblar las reservas de prueba
 
@@ -54,7 +54,7 @@ Las cuentas de prueba no viajan en el repositorio: se reconstruyen contra la bas
 python manage.py poblar_usuarios_prueba
 ```
 
-El comando crea `ADMIN` y las dos cuentas de cliente, y llena la mesa 1 y la mesa 2 con un bloque por hora (00:00 a 23:00, incluidos los bloques fuera del horario de atención) desde el día de hoy hasta 30 días adelante. Como las fechas se calculan al ejecutarlo, las reservas siempre quedan vigentes.
+El comando crea `admin` y las dos cuentas de cliente, y llena la mesa 1 y la mesa 2 con un bloque por hora (00:00 a 23:00, incluidos los bloques fuera del horario de atención) desde el día de hoy hasta 30 días adelante. Como las fechas se calculan al ejecutarlo, las reservas siempre quedan vigentes.
 
 Opciones:
 

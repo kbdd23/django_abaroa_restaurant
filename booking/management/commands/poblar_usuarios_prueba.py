@@ -20,12 +20,12 @@ from booking.models import Mesa, Reserva
 from panel.models import User
 
 CUENTAS_DE_PRUEBA = (
-    {"username": "MrEveryday", "first_name": "Mr Everyday", "numero_mesa": 1},
-    {"username": "MrCopycat", "first_name": "Mr Copycat", "numero_mesa": 2},
+    {"username": "mreveryday", "first_name": "Mr Everyday", "numero_mesa": 1},
+    {"username": "mrcopycat", "first_name": "Mr Copycat", "numero_mesa": 2},
 )
 
 # Cuenta con la que el docente revisa el panel propio y el django-admin.
-CUENTA_ADMIN = "ADMIN"
+CUENTA_ADMIN = "admin"
 CLAVE_ADMIN_POR_DEFECTO = "1234"
 
 CLAVE_POR_DEFECTO = "prueba1234"
